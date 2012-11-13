@@ -3,6 +3,7 @@ from django.template.defaultfilters import stringfilter
 from django.utils.encoding import smart_str, force_unicode
 
 import re
+from django.utils.safestring import mark_safe
 register = template.Library()
 
 spaces_rules = {
@@ -18,7 +19,8 @@ spaces_rules = {
     u'[' : u' [',
     u']' : u'] ',
     u'\xab' : u' \xab\xa0',
-    u'\xbb' : u'\xa0\xbb '
+    u'\xbb' : u'\xa0\xbb ',
+    u"\u2019" : u"\u2019" 
     
   }
 
@@ -41,8 +43,7 @@ widont_finder = re.compile(r"""((?:</?(?:a|em|span|strong|i|b)[^>]*>)|[^<>\s]) #
 def replace_with_spaces(matchobj):
     return spaces_rules.get(matchobj.group(0))
 
-@register.filter
-@stringfilter
+
 def spaces(text):
   # clean spaces  
   text = re_clean_space_1.sub(u'\\2\\1\\3',text)
@@ -54,14 +55,12 @@ def spaces(text):
   
   return text
 
+
 def widont(text):
     
     text = widont_finder.sub(u'\\1\xa0\\2', text)
     return text
 
-
-@register.filter
-@stringfilter
 def ellipsis(text):
   text = re.sub(r"\.\.\.", u"\u2026", text)
   text = re.sub(r"\. \. \.", u"\u2026", text)
@@ -74,8 +73,8 @@ def typographie(text):
   text = force_unicode(text)
   text = ellipsis(text)
   text = spaces(text)
+  text = widont(text)
+  return mark_safe(text)
 
-  return text
-
-
+typographie.is_safe = True
 
