@@ -42,9 +42,17 @@ def cb_re_replace_chars_with_spaces(matchobj):
 # extract content between two tags
 re_content_between_tags = re.compile(r'(>|^)([^<>]*)(<|$)')
 def cb_re_content_between_tags(matchobj):
-          text = matchobj.group(2)
-          text = re_replace_chars_with_spaces.sub(cb_re_replace_chars_with_spaces ,text)
-          return u"%s%s%s" % (matchobj.group(1), text, matchobj.group(3))
+      text = matchobj.group(2)
+      text = re_replace_chars_with_spaces.sub(cb_re_replace_chars_with_spaces ,text)
+      
+      # remove multiple spaces      
+      text = re_remove_multiple_spaces.sub(cb_re_remove_multiple_spaces,text)
+      text = re_remove_spaces_before_comma_and_dot.sub(u'\\1\\2',text)
+      
+      # remove space between ellipsis and close parenthesis 
+      text = re_remove_space_between_ellipsis_and_parenthesis.sub(u'\u2026)' ,text)
+      
+      return u"%s%s%s" % (matchobj.group(1), text, matchobj.group(3))
   
 # extract html between tags div, p, pre, blockquote 
 re_parse_content = re.compile(r'(<[^>]* ?)((?:div|p|pre|blockquote))( ?[^>]*>)(.*?)(</\2>)', flags = re.S + re.U)
@@ -52,10 +60,8 @@ def cb_re_parse_content(matchobj):
     text = spaces(matchobj.group(4).strip())
     return u"%s%s%s%s%s" % (matchobj.group(1), matchobj.group(2),matchobj.group(3), text,matchobj.group(5))
 
-# used to remove spaces before . and ,
+# remove spaces
 re_remove_spaces_before_comma_and_dot = re.compile(r'(\S)\s*([\.,])')
-
-# remove multiple spaces between tow typo chars
 re_remove_multiple_spaces = re.compile(r'([%s])(\s*)(\xa0*)(\s*)([%s])' % (spaces_rules_chars, spaces_rules_chars), flags=re.U)
 def cb_re_remove_multiple_spaces(m):
           r = " "
@@ -63,6 +69,8 @@ def cb_re_remove_multiple_spaces(m):
               r = u'\xa0'
               
           return u"%s%s%s" % (m.group(1), r, m.group(5))
+re_remove_space_between_ellipsis_and_parenthesis = re.compile(u'\u2026\s*\)',flags=re.U)
+      
 def spaces(text):
     
   if re_parse_content.match(text) is not None:
@@ -81,7 +89,8 @@ def spaces(text):
       text = re_remove_multiple_spaces.sub(cb_re_remove_multiple_spaces,text)
       text = re_remove_spaces_before_comma_and_dot.sub(u'\\1\\2',text)
       
-      
+      # remove space between ellipsis and close parenthesis 
+      text = re_remove_space_between_ellipsis_and_parenthesis.sub(u'\u2026)' ,text)
       
   return text
 
@@ -96,7 +105,6 @@ widont_finder = re.compile(r"""((?:</?(?:a|em|span|strong|i|b)[^>]*>)|[^<>\s]) #
 
 
 def widont(text):
-    
     text = widont_finder.sub(u'\\1\xa0\\2', text)
     return text
 
