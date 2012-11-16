@@ -32,6 +32,7 @@ re_clean_space_1 = re.compile(u'\s*(<[^>]+>|)([%s])(<[^>]+>|)\s*' % spaces_rules
 re_clean_space_2 = re.compile(u'([%s])\s*(<[^>]+>|)(<[^>]+>|)\s*' % spaces_rules_chars, flags=re.U)
 re_clean_space_3 = re.compile(u'\s*(<[^>]+>|)(<[^>]+>|)\s*([%s])' % spaces_rules_chars, flags=re.U)
 
+re_percent = re.compile(u'([0-9])\s*(%)', flags=re.U)
 
 # return char + spaces accoring to cb_re_replace_chars_with_spaces
 re_replace_chars_with_spaces = re.compile(u'\s*([%s])\s*' % spaces_rules_chars, flags=re.U)
@@ -91,6 +92,9 @@ def spaces(text):
       
       # remove space between ellipsis and close parenthesis 
       text = re_remove_space_between_ellipsis_and_parenthesis.sub(u'\u2026)' ,text)
+      
+      # replace any white space between an integer and % and replace it with \xa0
+      text = re_percent.sub(u'\\1\xa0\\2',text)
       
   return text
 
