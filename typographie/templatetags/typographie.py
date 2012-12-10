@@ -46,6 +46,9 @@ def cb_re_content_between_tags(matchobj):
       text = matchobj.group(2)
       text = re_replace_chars_with_spaces.sub(cb_re_replace_chars_with_spaces ,text)
       
+      # replace any white space between an integer and % and replace it with \xa0
+      text = re_percent.sub(u'\\1\xa0\\2',text)
+      
       # remove multiple spaces      
       text = re_remove_multiple_spaces.sub(cb_re_remove_multiple_spaces,text)
       text = re_remove_spaces_before_comma_and_dot.sub(u'\\1\\2',text)
@@ -55,11 +58,6 @@ def cb_re_content_between_tags(matchobj):
       
       return u"%s%s%s" % (matchobj.group(1), text, matchobj.group(3))
   
-# extract html between tags div, p, pre, blockquote 
-re_parse_content = re.compile(r'(<[^>]* ?)((?:div|p|pre|blockquote))( ?[^>]*>)(.*?)(</\2>)', flags = re.S + re.U)
-def cb_re_parse_content(matchobj):
-    text = spaces(matchobj.group(4).strip())
-    return u"%s%s%s%s%s" % (matchobj.group(1), matchobj.group(2),matchobj.group(3), text,matchobj.group(5))
 
 # remove spaces
 re_remove_spaces_before_comma_and_dot = re.compile(r'(\S)\s*([\.,])')
@@ -73,28 +71,14 @@ def cb_re_remove_multiple_spaces(m):
 re_remove_space_between_ellipsis_and_parenthesis = re.compile(u'\u2026\s*\)',flags=re.U)
       
 def spaces(text):
-    
-  if re_parse_content.match(text) is not None:
-      text = re_parse_content.sub(cb_re_parse_content, text)
-  else:
-    
-      # clean spaces  
-      text = re_clean_space_1.sub(u'\\2\\1\\3',text)
-      text = re_clean_space_2.sub(u'\\1\\2\\3',text)
-      text = re_clean_space_3.sub(u'\\3\\1\\2',text)
       
-      # set spaces
-      text = re_content_between_tags.sub(cb_re_content_between_tags, text)
-      
-      # remove multiple spaces      
-      text = re_remove_multiple_spaces.sub(cb_re_remove_multiple_spaces,text)
-      text = re_remove_spaces_before_comma_and_dot.sub(u'\\1\\2',text)
-      
-      # remove space between ellipsis and close parenthesis 
-      text = re_remove_space_between_ellipsis_and_parenthesis.sub(u'\u2026)' ,text)
-      
-      # replace any white space between an integer and % and replace it with \xa0
-      text = re_percent.sub(u'\\1\xa0\\2',text)
+  # clean spaces  
+  text = re_clean_space_1.sub(u'\\2\\1\\3',text)
+  text = re_clean_space_2.sub(u'\\1\\2\\3',text)
+  text = re_clean_space_3.sub(u'\\3\\1\\2',text)
+        
+  # set spaces
+  text = re_content_between_tags.sub(cb_re_content_between_tags, text)
       
   return text
 
