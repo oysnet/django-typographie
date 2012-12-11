@@ -61,7 +61,8 @@ def cb_re_content_between_tags(matchobj):
 # extract html between tags div, p, pre, blockquote 
 re_parse_content = re.compile(r'(<[^>]* ?)((?:div|p|pre|blockquote|h4))( ?[^>]*>)(.*?)(</\2>)', flags = re.S + re.U)
 def cb_re_parse_content(matchobj):
-    text = spaces(matchobj.group(4).strip())
+    
+    text = spaces(matchobj.group(4))
     return u"%s%s%s%s%s" % (matchobj.group(1), matchobj.group(2),matchobj.group(3), text,matchobj.group(5))
 
 # remove spaces
@@ -76,7 +77,7 @@ def cb_re_remove_multiple_spaces(m):
 re_remove_space_between_ellipsis_and_parenthesis = re.compile(u'\u2026\s*\)',flags=re.U)
       
 def spaces(text):
-    
+  text = text.strip()
   if re_parse_content.match(text) is not None:
       text = re_parse_content.sub(cb_re_parse_content, text)
   else:
