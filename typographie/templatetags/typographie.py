@@ -89,14 +89,7 @@ def spaces(text):
       
       # set spaces
       text = re_content_between_tags.sub(cb_re_content_between_tags, text)
-      """
-      # remove multiple spaces      
-      text = re_remove_multiple_spaces.sub(cb_re_remove_multiple_spaces,text)
-      text = re_remove_spaces_before_comma_and_dot.sub(u'\\1\\2',text)
       
-      # remove space between ellipsis and close parenthesis 
-      text = re_remove_space_between_ellipsis_and_parenthesis.sub(u'\u2026)' ,text)
-      """
       
       
   return text
