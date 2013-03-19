@@ -24,7 +24,7 @@ spaces_rules = {
     u"\u2019" : u"\u2019" 
     
   }
-
+    
 
 spaces_rules_chars = u''.join([ u"%s%s" % ( (u'\\' if c in [u'-', u'.', u'(', u')', u'[', u']'] else u''), c ) for c in spaces_rules.keys()])
 
@@ -33,6 +33,7 @@ re_clean_space_2 = re.compile(u'([%s])\s*(<[^>]+>|)(<[^>]+>|)\s*' % spaces_rules
 re_clean_space_3 = re.compile(u'\s*(<[^>]+>|)(<[^>]+>|)\s*([%s])' % spaces_rules_chars, flags=re.U)
 
 re_percent = re.compile(u'([0-9])\s*(%)', flags=re.U)
+re_percent_with_comma = re.compile(u'([0-9]+)\s*,\s*([0-9]+)\s*(%)', flags=re.U)
 
 # return char + spaces accoring to cb_re_replace_chars_with_spaces
 re_replace_chars_with_spaces = re.compile(u'\s*([%s])\s*' % spaces_rules_chars, flags=re.U)
@@ -47,7 +48,8 @@ def cb_re_content_between_tags(matchobj):
       text = re_replace_chars_with_spaces.sub(cb_re_replace_chars_with_spaces ,text)
       
       # replace any white space between an integer and % and replace it with \xa0
-      text = re_percent.sub(u'\\1\xa0\\2',text)
+      text = re_percent.sub(u'\\1\xa0\\2 ',text)
+      text = re_percent_with_comma.sub(u'\\1,\\2\xa0\\3 ',text)
       
       # remove multiple spaces      
       text = re_remove_multiple_spaces.sub(cb_re_remove_multiple_spaces,text)
