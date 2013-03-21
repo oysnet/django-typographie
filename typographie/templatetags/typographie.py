@@ -63,7 +63,7 @@ spaces_rules_chars = u''.join([ u"%s%s" % ( (u'\\' if c in [u'-', u'.', u'(', u'
 
 re_unprotect = re.compile(u'`([%s])`' % spaces_rules_chars, flags=re.U)
 
-re_float_number = re.compile(u'([0-9])(?<!`)\.(?!`)([0-9])')
+re_float_number = re.compile(u'([0-9])(?<!`)([\.,])(?!`)([0-9])')
 
 re_clean_space_1 = re.compile(u'\s*(<[^>]+>|)((?<!`)[%s](?!`))(<[^>]+>|)\s*' % spaces_rules_chars, flags=re.U)
 re_clean_space_2 = re.compile(u'((?<!`)[%s](?!`))\s*(<[^>]+>|)(<[^>]+>|)\s*' % spaces_rules_chars, flags=re.U)
@@ -84,7 +84,7 @@ def cb_re_content_between_tags(matchobj):
       text = matchobj.group(2)
       
       text = re_tlds.sub(u'`.`\\1',text)
-      text = re_float_number.sub(u'\\1`.`\\2', text)
+      text = re_float_number.sub(u'\\1`\\2`\\3', text)
       
       for exception in COMPILED_EXCEPTIONS:
           text = exception[0].sub(exception[1], text)
